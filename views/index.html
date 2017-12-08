@@ -1,0 +1,85 @@
+<!-- This is a static file -->
+<!-- served from your routes in server.js -->
+
+<!-- You might want to try something fancier: -->
+<!-- html/nunjucks docs: http://mozilla.github.io/nunjucks/ -->
+<!-- jade: http://jade-lang.com/ -->
+<!-- haml: http://haml.info/tutorial.html -->
+<!-- hbs(handlebars): http://handlebarsjs.com/expressions.html -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Checklist Mania</title>
+    <meta name="description" content="Simple, embeddable checklists">
+    <link id="favicon" rel="icon" href="https://hyperdev.com/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main>
+      <!-- Checklist content -->
+      <section data-bind="visible: dreams().length > 0">
+      <div class="checklist">
+        <div>
+          <span id="checklist-title" data-bind="text: title"></span>
+          <div class="save-as-template" id="saveAsTemplate" data-bind="click: saveAsTemplate" title="Save As Template"><img src="https://cdn.hyperdev.com/2d3feac0-a484-4173-8eed-bb89ec96da90%2Fsharethis-5-16.ico"> </div>
+        </div>
+        <div class="progress-wrapper">
+          <div class="percent-complete" data-bind="text: pctComplete() + '%'"></div>
+          <div class="progress-bar">
+            <div class="progress-accomplished" data-bind="style: { width: pctComplete() + '%' }"></div>
+          </div>
+        </div>
+        <div class="checklist-items-list" data-bind="sortable: dreams">
+          <div class="checklist-item clearfix" data-bind="css: { 'checklist-item-state-complete': isComplete() }">
+            <div class="checklist-item-checkbox enabled js-toggle-checklist-item"><span class="icon-sm icon-check checklist-item-checkbox-check" data-bind="click: function() { isComplete(!isComplete()) }"></span></div>
+            <div class="checklist-item-details non-empty editable"
+                 data-bind="css: { editing: isSelected },
+                            click: function() {
+                              if ($parent.selected === null || $parent.selected === $data) {
+                                $parent.select($data)
+                              } else {
+                                $parent.clearSelected()
+                              } }">
+              <p class="checklist-item-details-text current hide-on-edit markeddown js-checkitem-name" data-bind="text: dream"></p>
+              <div class="edit">
+                <input type="text"
+                       class="field full single-line js-checkitem-input"
+                       data-bind="value: dream, hasFocus: isSelected, event: { keyup: function(_, e) { if (e.which === 13) { $parent.clearSelected() } } }"/></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <form id="items">
+        <input id="new-item" type="text" maxlength="100" placeholder="Add an item...">
+        <button type="submit">Submit</button>
+      </form>
+      </section>
+      
+      <!-- Create a new Checklist -->
+      <div class="create-checklist" data-bind="visible: dreams().length === 0">
+        <div id="create-checklist">Create a Checklist</div>
+        <form id="new-checklist">
+          <select id="templates"></select>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+      
+    </main>
+
+    <!-- Your web-app is https, so your scripts need to be too -->
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout-sortable/1.1.0/knockout-sortable.min.js"></script>
+    <script src="/client.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="https://use.fontawesome.com/fcb170d64e.js"></script>
+
+  </body>
+</html>
