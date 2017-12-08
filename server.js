@@ -2,10 +2,12 @@
 // where your node app starts
 
 // init project
-var express = require('express');
-var app = express();
-var sqlite = require('sqlite3').verbose();
-var db = require('./database')('.data/db.sqlite');
+const pkg = require('./package'),
+      express = require('express'),
+      app = express()
+
+// SQLite database
+const db = require('./database')()
 
 // make trailing slashes matter
 app.enable('strict routing');
@@ -15,8 +17,8 @@ app.use(require('cookie-parser')());
 
 // CORS to allow embedding
 app.use(function(request, response, next) {
-  // allow our designated site
-  response.set('Access-Control-Allow-Origin', process.env.ALLOWED_DOMAIN);
+  // allow our designated site (or all sites if none defined)
+  response.set('Access-Control-Allow-Origin', process.env.ALLOWED_DOMAIN || '*');
   // allow cookies to be set cross domain
   response.set('Access-Control-Allow-Credentials', true);
   // allow the auth secret on cross domain requests
@@ -147,6 +149,4 @@ app.use(function (err, req, res, next) {
 });
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-});
+app.listen(process.env.PORT, () => console.log(`✨🚀 ${pkg.name} ${pkg.version} running node ${process.version} ✨🚀`))
