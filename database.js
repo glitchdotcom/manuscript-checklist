@@ -31,8 +31,19 @@ module.exports = function(options) {
 
 function initDbIfNeeded(db, tableFn) {
   // create our tables if they don't already exist
-  return tableFn('checklist', 'CREATE TABLE checklist(id PRIMARY KEY, items)')
-    .then(() => tableFn('template', 'CREATE TABLE template(id PRIMARY KEY, items)'))
+  return tableFn('checklist', 'CREATE TABLE checklist(id PRIMARY KEY, items)', process.env.WIPE_TABLES_ON_START)
+    .then(() => tableFn('template', 'CREATE TABLE template(id PRIMARY KEY, items)', process.env.WIPE_TABLES_ON_START))
+    .then(() => {
+      // stick a template into the db unless remixers say otherwise
+      if (!process.env.DONT_SEED_DATA) {
+        db.template.set("A Dream of the Future", JSON.stringify({
+          items: [
+            { dream: 'Find and count some sheep' },
+            { dream: 'Climb a really tall mountain' },
+            { dream: 'Wash the dishes' }
+          ]}))
+      }
+  })
 }
 
 function path(options) {
@@ -54,7 +65,7 @@ function ensureTableFn(connection) {
     drop ?
       connection.run("DROP TABLE IF EXISTS " + name) :
       connection.get("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", name)
-  ).then(row => { if (!row) return connection.run(definition) })
+  ).then(row => { if (row === undefined || row.name !== name) return connection.run(definition) })
 }
 
 // backport some of node8s util.promisify... only works with single arg returns, which is fine here

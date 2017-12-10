@@ -1,6 +1,6 @@
 {
   "name": "manuscript-checklist",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Simple, embeddable checklists for Manuscript cases",
   "main": "server.js",
   "scripts": {
@@ -19,9 +19,9 @@
     "url": "https://github.com/FogCreek/manuscript-checklist"
   },
   "keywords": [
-    "node",
-    "hyperdev",
-    "express"
+    "Manuscript",
+    "Checklists",
+    "Glitch"
   ],
   "license": "MIT"
 }
