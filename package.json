@@ -1,10 +1,7 @@
 {
-  "//1": "describes your app and its dependencies",
-  "//2": "https://docs.npmjs.com/files/package.json",
-  "//3": "updating this file will download and update your packages",
-  "name": "my-hyperdev-app",
-  "version": "0.0.1",
-  "description": "What am I about?",
+  "name": "manuscript-checklist",
+  "version": "1.0.0",
+  "description": "Simple, embeddable checklists for Manuscript cases",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -15,16 +12,16 @@
     "cookie-parser": "^1.4.3"
   },
   "engines": {
-    "node": "4.4.3"
+    "node": "8"
   },
   "repository": {
     "type": "git",
-    "url": "https://hyperdev.com/#!/project/welcome-project"
+    "url": "https://github.com/FogCreek/manuscript-checklist"
   },
   "keywords": [
-    "node",
-    "hyperdev",
-    "express"
+    "Manuscript",
+    "Checklists",
+    "Glitch"
   ],
   "license": "MIT"
 }
