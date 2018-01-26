@@ -1,23 +1,15 @@
+// use this as a Manuscript customization to get checklists embedded in cases
 /* global fb, $checklist, $sidebar */
 
-/* use this as a Manuscript customization to get checklists embedded on the case view page
-
-  security warning: do not set this Customization to be active for anyone other than logged-in users
-  so that the "SECRET" constant below isn't sent to the browser for anyone you don't
-  want to have access to the checklists in Glitch
-  (basically don't set a rule here for not-logged-in or community users)
-
-*/
 $(function(){
   
-  const URL = 'URL'; // the domain of your checklist app
+  const DOMAIN = 'DOMAIN'; // the domain of your checklist app
   const SECRET = 'SECRET'; // the shared auth secret
+
   if (!(fb && fb.config && fb.pubsub && fb.cases && fb.cases.current)) return;
   
   function runThisWhenCasePageModeChanges(sCommand) {
-    if (URL === 'URL') {
-      console.error('Checklist customization needs a bit more configuration. Set URL to your Glitch app url')
-    } else if ( $.inArray(sCommand, ['load', 'view', 'email', 'reply', 'forward']) >= 0 )  {
+    if (sCommand == 'load' || sCommand == 'view') {
       checklist(fb.cases.current.bug.ixBug);
     }
   }
@@ -31,13 +23,13 @@ $(function(){
     }   
   }); 
   setTimeout(function() { runThisWhenCasePageModeChanges(fb.cases.current.sAction) }, 100);
-  
+
   // must be idempotent
   function checklist(ixBug) {
-    var checklistUrl = URL + '/checklist/' + ixBug + '/';
+    var checklistUrl = DOMAIN + '/checklist/' + ixBug + '/';
     // if the checklist iframe has already been created; ensure the src is correct
-    if (typeof($checklist) !== 'undefined') {
-      if ($checklist.attr('src') !== checklistUrl) {
+    if (typeof($checklist) != 'undefined') {
+      if ($checklist.attr('src') != checklistUrl) {
         $checklist.attr('src', checklistUrl);
       }
     } else {
@@ -47,7 +39,7 @@ $(function(){
       // start with a short height, but adjust based on messages from the iframe sending it's size
       $checklist.css('height', '50px');
       $(window).on('message onmessage', function(e) {
-        if (e.originalEvent && e.originalEvent.origin === URL) {
+        if (e.originalEvent && e.originalEvent.origin == DOMAIN) {
           $checklist.height(e.originalEvent.data);
         }
       });
@@ -57,7 +49,7 @@ $(function(){
         xhrFields: {
           withCredentials: true
         },  
-        url: URL,
+        url: DOMAIN,
         beforeSend: function(xhr, settings) { xhr.setRequestHeader("Authorization", SECRET) },
         success: function(data){
           $checklist.attr('src', checklistUrl);
@@ -68,6 +60,9 @@ $(function(){
     if ($('#sidebarChecklist').length === 0) {
       $sidebar = $('#sidebarSubscribe').parent();
       $sidebar.append($checklist);
+      // adjust the sidebar and case to give a bit more room to the checklist
+      $sidebar.css('width', '300px');
+      $('.events').css('width', '-webkit-calc(100% - 300px)');
     }
   }
 });

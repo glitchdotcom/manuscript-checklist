@@ -76,8 +76,8 @@ p {
 }
 
 .icon-check:before {
-  /* content: "X"; */
-  content: "✔︎";
+  content: "X";
+    /* content: "\e910"; */
 }
 
 .icon-sm {

@@ -1,4 +1,10 @@
 /* global ko */
+// client-side js
+// run by the browser each time your view template is loaded
+
+// by default, you've got jQuery,
+// add other scripts at the bottom of index.html
+
 $(function() {
   
   var Dream = function(dream, isComplete) {
@@ -61,14 +67,13 @@ $(function() {
       }, 100);
     };
     // right now, just creates a template with the same name as the checklist
-    // would be cool to provide a method of providing a name at this point
-    // until then, visit /checklist/<your template name> to control the name
+    // would be cool to provide a method of providing a name
     self.saveAsTemplate = function() {
       var path = window.location.pathname.replace('/checklist/', '/template/');
       var sDreams = JSON.stringify({ items: self.dreams().map(function(elt) { return { dream: elt.dream(), isComplete: elt.isComplete() }; }) });
       $.post(path + 'items?' + $.param({dream: sDreams}), function() {
         // empty the list, so you can see the new template as a choice
-        // TODO: something better to indicate saving has happened
+        // TODO: something better to indicate the thing happened
         loadTemplates();
         self.dreams.removeAll();
       });
@@ -78,7 +83,7 @@ $(function() {
   var model = new ViewModel();
   ko.applyBindings(model);
   
-  // items can be either:
+  // yuck. Do something nicer with the fact that items can be either:
   // "some item"
   // {dream: "some item", isComplete: t/f}
   function fillChecklist(items) {
@@ -101,7 +106,7 @@ $(function() {
   }
   
   // send a message to the parent window informing our height
-  // which improves embedding experience in e.g., Manuscript
+  // which improves embedding
   function notifySize() {
     parent.postMessage($('main').height() + 20, '*');
   }
