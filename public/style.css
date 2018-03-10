@@ -169,16 +169,14 @@ input.field {
     width: 100%;
 }
 
-.save-as-template {
+.save {
   float:right;
   margin-left: 5px;
-  cursor:pointer;
 }
 
-/* .save-as-template:hover {
-  background-color: #0d3472;
-  color: white;
-} */
+.icon {
+  cursor:pointer;
+}
 
 .percent-complete {
   position: relative;
@@ -209,7 +207,7 @@ input.field {
   -webkit-transition: width 300ms ease-in
 }
 
-.save-as-template-tooltip {
+.icon.tooltip {
   background-color: #f1f1f1;
   padding: 3px;
   opacity: 1;

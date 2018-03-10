@@ -16,7 +16,9 @@ $(function() {
 
   var ViewModel = function() {
     var self = this;
-    self.title = ko.observable('Checklist: ');
+    self.isChecklist = ko.observable(true);
+    self.isEditingTitle = ko.observable(false);
+    self.title = ko.observable('');
     self.dreams = ko.observableArray([]);
     self.pctComplete = ko.computed(function() {
       var total = self.dreams().length;
@@ -65,7 +67,7 @@ $(function() {
     // until then, visit /checklist/<your template name> to control the name
     self.saveAsTemplate = function() {
       var path = window.location.pathname.replace('/checklist/', '/template/');
-      var sDreams = JSON.stringify({ items: self.dreams().map(function(elt) { return { dream: elt.dream(), isComplete: elt.isComplete() }; }) });
+      var sDreams = JSON.stringify({ items: self.dreams().map(function(elt) { return elt.dream(); }) });
       $.post(path + 'items?' + $.param({dream: sDreams}), function() {
         // empty the list, so you can see the new template as a choice
         // TODO: something better to indicate saving has happened
@@ -73,6 +75,14 @@ $(function() {
         self.dreams.removeAll();
       });
     };
+    self.saveTemplate = function() {
+      var path = '/template/' + encodeURI(self.title());
+      var sDreams = JSON.stringify({ items: self.dreams().map(function(elt) { return elt.dream(); }) });
+      $.post(path + '/items?' + $.param({dream: sDreams}), function() {
+        // nav back to templates page
+        window.location.pathname = '';
+      });
+    }
   };
   
   var model = new ViewModel();
@@ -112,12 +122,21 @@ $(function() {
     model.save();
   }
   
-  $.get('./dreams', function(dreams) {
-    fillChecklist(dreams.items);
-    // save on changes, once the dreams are all loaded (won't fire until changes are made)
-    model.dreams.subscribe(fireOnChange);
-    notifySize();
-  });
+  function populateChecklist() {
+    $.get('./dreams', function(dreams) {
+      fillChecklist(dreams.items);
+      // save on changes, once the dreams are all loaded (won't fire until changes are made)
+      model.dreams.subscribe(fireOnChange);
+      notifySize();
+    });
+  }
+  
+  function populateChecklistFromTemplate(template) {
+    $.get("/template/" + template, function(template) {
+      fillChecklist(template.items);
+    })
+    .fail(emptyChecklist);
+  }
 
   $('form#items').submit(function(event) {
     event.preventDefault();
@@ -143,7 +162,6 @@ $(function() {
       });
     });
   }
-  loadTemplates();
   
   $('form#new-checklist').submit(function(event) {
     event.preventDefault();
@@ -151,29 +169,32 @@ $(function() {
     if (template == 'empty') {
       emptyChecklist();
     } else {
-      $.get("/template/" + template, function(template) {
-        fillChecklist(template.items);
-        $('select#templates').val('empty');
-      });
+      populateChecklistFromTemplate(template);
     }
   });
   
-  function replaceTitle(){
-    var url = window.location.href;
-    var checklist = url.indexOf("checklist/");
-    var projectName = url.substring(checklist + 10, url.length - 1);
-    model.title("Checklist: " + projectName);
+  
+  
+  // get either the checklist we're supposed to be rendering, or the template that we're editing
+  function populateViewModel() {
+    // matches things like /checklist/:id/ or /template/:id/edit
+    var pattern = /(?:\/(checklist|template)\/)([^\/]+)\/(?:edit)?/;
+    var matches = window.location.href.match(pattern);
+    if (matches && matches[1].toLowerCase() === 'checklist') {
+      // we're a checklist
+      populateChecklist();
+      loadTemplates();
+      model.title("Checklist: " + decodeURI(matches[2]));
+    } else if (matches && matches[1].toLowerCase() === 'template') {
+      // we're a template
+      populateChecklistFromTemplate(matches[2]);
+      model.isChecklist(false);
+      model.title(decodeURI(matches[2]));
+    } else {
+      // no idea what we are, so just play dead I guess
+    }
   }
   
-  replaceTitle();
-  
-  $('.save-as-template').tooltip({
-        tooltipClass: "save-as-template-tooltip",
-        content: "Save As Template",
-        track: true,
-        position: {
-          my: "right-5 top"
-        }
-  });
+  populateViewModel();
 
 });

@@ -65,7 +65,12 @@ app.get('/checklist/:ixChecklist', function (req, res) {
 
 app.get('/checklist/:ixChecklist/', function (req, res) {
   console.log(`rendering ${req.params.ixChecklist}`);
-  res.sendFile(__dirname + '/views/index.html');
+  res.sendFile(__dirname + '/views/checklist.html');
+});
+
+app.get('/template/:ixTemplate/edit', function (req, res) {
+  console.log(`rendering ${req.params.ixTemplate}`);
+  res.sendFile(__dirname + '/views/checklist.html');
 });
 
 // return a list of available templates
@@ -106,7 +111,7 @@ app.post('/template/:ixTemplate/items', function (request, response, next) {
     .catch(next);
   } else {
     // templates don't have completed items, so scrub them from the JSON
-    db.template.set(ixTemplate, JSON.stringify(template, (key,value) => key === 'isComplete' ? undefined : value))
+    db.template.set(ixTemplate, JSON.stringify(template, (key, value) => key === 'isComplete' ? undefined : value))
     .then(function() {
       response.sendStatus(200);
     })

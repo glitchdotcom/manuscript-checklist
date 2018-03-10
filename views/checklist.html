@@ -24,18 +24,27 @@
       <section data-bind="visible: dreams().length > 0">
       <div class="checklist">
         <div>
-          <span id="checklist-title" data-bind="text: title"></span>
-          <div class="save-as-template" id="saveAsTemplate" data-bind="click: saveAsTemplate" title="Save As Template"><img src="https://cdn.glitch.com/2d3feac0-a484-4173-8eed-bb89ec96da90%2Fsharethis-5-16.ico"> </div>
+          <span id="checklist-title" data-bind="text: title, visible: isChecklist"></span>
+          <div id="template-title" class="non-empty editable" data-bind="visible: !isChecklist(), css: { editing: isEditingTitle }, click: function() { isEditingTitle(true) }">
+            <p class="hide-on-edit" data-bind="text: title"></p>
+              <div class="edit">
+                <input type="text" class="field full single-line"
+                       data-bind="value: title, hasFocus: isEditingTitle, event: { keyup: function(_, e) { if (e.which === 13) { isEditingTitle(false) } } }"/></div>
+          </div>
+          <div class="save icon" id="saveAsTemplate" data-bind="click: saveAsTemplate, visible: isChecklist" title="Save As Template"><img src="https://cdn.glitch.com/2d3feac0-a484-4173-8eed-bb89ec96da90%2Fsharethis-5-16.ico"> </div>
         </div>
-        <div class="progress-wrapper">
+        <div class="progress-wrapper" data-bind="visible: isChecklist">
           <div class="percent-complete" data-bind="text: pctComplete() + '%'"></div>
           <div class="progress-bar">
             <div class="progress-accomplished" data-bind="style: { width: pctComplete() + '%' }"></div>
           </div>
         </div>
+        <div class="progress-spacer" data-bind="visible: !isChecklist()"></div>
         <div class="checklist-items-list" data-bind="sortable: dreams">
           <div class="checklist-item clearfix" data-bind="css: { 'checklist-item-state-complete': isComplete() }">
-            <div class="checklist-item-checkbox enabled js-toggle-checklist-item"><span class="icon-sm icon-check checklist-item-checkbox-check" data-bind="click: function() { isComplete(!isComplete()) }"></span></div>
+            <div class="checklist-item-checkbox enabled js-toggle-checklist-item" data-bind="visible: $parent.isChecklist">
+              <span class="icon-sm icon-check checklist-item-checkbox-check" data-bind="click: function() { isComplete(!isComplete()) }"></span>
+            </div>
             <div class="checklist-item-details non-empty editable"
                  data-bind="css: { editing: isSelected },
                             click: function() {
@@ -57,11 +66,15 @@
         <input id="new-item" type="text" maxlength="100" placeholder="Add an item...">
         <button type="submit">Submit</button>
       </form>
+      <div class="template-controls" data-bind="visible: !isChecklist()">
+        <span class="icon" id="eraseTemplate" data-bind="click: function() { dreams.removeAll(); saveTemplate(); }" title="Delete Template">❌</span>
+        <span class="icon" id="saveTemplate" data-bind="click: saveTemplate" title="Save Template">💾</span>
+      </div>
       </section>
       
       <!-- Create a new Checklist -->
       <div class="create-checklist" data-bind="visible: dreams().length === 0">
-        <div id="create-checklist">Create a Checklist</div>
+        <div id="create-checklist" data-bind="text: 'Create a ' + (isChecklist() ? 'Checklist' : 'Template')"></div>
         <form id="new-checklist">
           <select id="templates"></select>
           <button type="submit">Submit</button>
