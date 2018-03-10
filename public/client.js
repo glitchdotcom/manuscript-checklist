@@ -13,8 +13,35 @@ $(function() {
       self.isComplete.subscribe(fn);
     };
   };
-
-  var ViewModel = function() {
+  
+  var Template = function(title) {
+    var self = this;
+    self.title = title;
+    
+    self.delete = function() {
+      return $.post('/template/' + encodeURI(self.title) + '/items?' + $.param({dream: "{}"}));
+    };
+    self.edit = function() {
+      window.location.pathname = '/template/' + encodeURI(self.title) + '/edit'
+    };
+  };
+  
+  var TemplateListModel = function() {
+    var self = this;
+    
+    self.templates = ko.observableArray([]);
+    self.push = function(title) {
+      self.templates.push(new Template(title));
+    }
+    self.delete = function(template) {
+      if (!window.confirm('Are you sure? There is no undo')) { return; }
+      template.delete().then(function() {
+        self.templates.remove(template)
+      });
+    }
+  };
+    
+  var ChecklistViewModel = function() {
     var self = this;
     self.isChecklist = ko.observable(true);
     self.isEditingTitle = ko.observable(false);
@@ -85,8 +112,7 @@ $(function() {
     }
   };
   
-  var model = new ViewModel();
-  ko.applyBindings(model);
+  var checklistModel = new ChecklistViewModel();
   
   // items can be either:
   // "some item"
@@ -94,9 +120,9 @@ $(function() {
   function fillChecklist(items) {
     items.forEach(function(dream) {
       if (typeof dream == 'string') {
-        model.add(dream);
+        checklistModel.add(dream);
       } else {
-        model.push(dream);
+        checklistModel.push(dream);
       }
     });
   }
@@ -104,10 +130,10 @@ $(function() {
   // make a checklist with one empty item, ready for editing
   function emptyChecklist() {
     var d = new Dream('', false);
-    d.subscribe(function() { model.save() });
-    model.dreams.removeAll();
-    model.dreams.push(d);
-    model.select(d);
+    d.subscribe(function() { checklistModel.save() });
+    checklistModel.dreams.removeAll();
+    checklistModel.dreams.push(d);
+    checklistModel.select(d);
   }
   
   // send a message to the parent window informing our height
@@ -119,14 +145,14 @@ $(function() {
   // fire on all changes
   function fireOnChange() {
     notifySize();
-    model.save();
+    checklistModel.save();
   }
   
   function populateChecklist() {
     $.get('./dreams', function(dreams) {
       fillChecklist(dreams.items);
       // save on changes, once the dreams are all loaded (won't fire until changes are made)
-      model.dreams.subscribe(fireOnChange);
+      checklistModel.dreams.subscribe(fireOnChange);
       notifySize();
     });
   }
@@ -141,7 +167,7 @@ $(function() {
   $('form#items').submit(function(event) {
     event.preventDefault();
     var dream = $('input#new-item').val();
-    model.add(dream);
+    checklistModel.add(dream);
     $('input#new-item').val('');
     $('input#new-item').focus();
   });
@@ -180,18 +206,32 @@ $(function() {
     // matches things like /checklist/:id/ or /template/:id/edit
     var pattern = /(?:\/(checklist|template)\/)([^\/]+)\/(?:edit)?/;
     var matches = window.location.href.match(pattern);
-    if (matches && matches[1].toLowerCase() === 'checklist') {
-      // we're a checklist
-      populateChecklist();
-      loadTemplates();
-      model.title("Checklist: " + decodeURI(matches[2]));
-    } else if (matches && matches[1].toLowerCase() === 'template') {
-      // we're a template
-      populateChecklistFromTemplate(matches[2]);
-      model.isChecklist(false);
-      model.title(decodeURI(matches[2]));
+    if (matches) {
+      
+      ko.applyBindings(checklistModel);
+      
+      if (matches[1].toLowerCase() === 'checklist') {
+        // we're a checklist
+        populateChecklist();
+        loadTemplates();
+        checklistModel.title("Checklist: " + decodeURI(matches[2]));
+      } else if (matches[1].toLowerCase() === 'template') {
+        // we're a template
+        populateChecklistFromTemplate(matches[2]);
+        checklistModel.isChecklist(false);
+        checklistModel.title(decodeURI(matches[2]));
+      }
     } else {
-      // no idea what we are, so just play dead I guess
+      // no idea what we are, so assume we're listing the templates
+      var model = new TemplateListModel();
+      ko.applyBindings(model);
+      
+      $.get('/templates', function(templates) {
+        templates.forEach(function(template) {
+          model.push(template);
+        });
+      });
+      
     }
   }
   

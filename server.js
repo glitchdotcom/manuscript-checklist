@@ -55,7 +55,7 @@ app.use(function(request, response, next) {
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (request, response) {
-  response.send("Visit /checklist/&lt;some name&gt; to start checklisting.");
+  response.sendFile(__dirname + '/views/index.html');
 });
 
 // ensure trailing slash so relative paths work on client
@@ -75,6 +75,7 @@ app.get('/template/:ixTemplate/edit', function (req, res) {
 
 // return a list of available templates
 app.get('/templates', function (request, response, next) {
+  console.log('listing templates');
   db.template.getAll()
   .then(function(rows) {
     var templates = rows.map(function (row) { return row.id; });

@@ -198,6 +198,11 @@ input.field {
   border-radius:5px;
 }
 
+.progress-spacer {
+  height: 10px;
+  padding: 2px;
+}
+
 .progress-accomplished {
   background-color: #5BA4CF;
   height: 5px;
@@ -218,4 +223,9 @@ input.field {
 
 .ui-helper-hidden-accessible {
   display:none;
+}
+
+li {
+  font-size: 2em;
+  list-style-type: none;
 }

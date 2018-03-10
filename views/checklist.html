@@ -67,8 +67,8 @@
         <button type="submit">Submit</button>
       </form>
       <div class="template-controls" data-bind="visible: !isChecklist()">
-        <span class="icon" id="eraseTemplate" data-bind="click: function() { dreams.removeAll(); saveTemplate(); }" title="Delete Template">❌</span>
         <span class="icon" id="saveTemplate" data-bind="click: saveTemplate" title="Save Template">💾</span>
+        <span class="icon" id="eraseTemplate" data-bind="click: function() { if (window.confirm('Are you sure? There is no undo')) { dreams.removeAll(); saveTemplate(); } }" title="Delete Template">❌</span>
       </div>
       </section>
       
