@@ -21,4 +21,4 @@ Made by Fog Creek
 
 \ ゜o゜)ノ
 
-Project icon made by Freepik from [www.flaticon.com](https://www.flaticon.com)
+[Project icon](https://www.flaticon.com/free-icon/checklist-square-interface-symbol-of-rounded-corners_39862) made by Freepik from [www.flaticon.com](https://www.flaticon.com)

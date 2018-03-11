@@ -55,7 +55,7 @@ app.use(function(request, response, next) {
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (request, response) {
-  response.send("Visit /checklist/&lt;some name&gt; to start checklisting.");
+  response.sendFile(__dirname + '/views/index.html');
 });
 
 // ensure trailing slash so relative paths work on client
@@ -65,11 +65,17 @@ app.get('/checklist/:ixChecklist', function (req, res) {
 
 app.get('/checklist/:ixChecklist/', function (req, res) {
   console.log(`rendering ${req.params.ixChecklist}`);
-  res.sendFile(__dirname + '/views/index.html');
+  res.sendFile(__dirname + '/views/checklist.html');
+});
+
+app.get('/template/:ixTemplate/edit', function (req, res) {
+  console.log(`rendering ${req.params.ixTemplate}`);
+  res.sendFile(__dirname + '/views/checklist.html');
 });
 
 // return a list of available templates
 app.get('/templates', function (request, response, next) {
+  console.log('listing templates');
   db.template.getAll()
   .then(function(rows) {
     var templates = rows.map(function (row) { return row.id; });
@@ -106,7 +112,7 @@ app.post('/template/:ixTemplate/items', function (request, response, next) {
     .catch(next);
   } else {
     // templates don't have completed items, so scrub them from the JSON
-    db.template.set(ixTemplate, JSON.stringify(template, (key,value) => key === 'isComplete' ? undefined : value))
+    db.template.set(ixTemplate, JSON.stringify(template, (key, value) => key === 'isComplete' ? undefined : value))
     .then(function() {
       response.sendStatus(200);
     })
